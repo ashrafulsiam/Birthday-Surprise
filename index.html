@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Special Surprise For You! 🌐✨</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;700&family=Pacifico&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #0d1b3e 0%, #050814 100%);
+            font-family: 'Hind Siliguri', sans-serif;
+            color: #fff;
+            position: relative;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        /* UI Overlay before explosion */
+        #ui-overlay {
+            position: fixed;
+            bottom: 8%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 10;
+            width: 90%;
+            max-width: 400px;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        #hint-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffbe0b;
+            text-shadow: 0 2px 15px rgba(255, 190, 11, 0.6);
+            margin-bottom: 12px;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 190, 11, 0.3);
+            backdrop-filter: blur(6px);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00f0ff, #ff007f, #ffbe0b);
+            transition: width 0.25s ease;
+        }
+
+        /* Final Birthday Card Reveal */
+        #surprise-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.2);
+            z-index: 20;
+            text-align: center;
+            width: 90%;
+            max-width: 460px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #surprise-card.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+
+        .bday-title {
+            font-family: 'Pacifico', cursive;
+            font-size: 3.4rem;
+            background: linear-gradient(45deg, #00f0ff, #ffbe0b, #ff007f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 5px 20px rgba(255, 0, 127, 0.6));
+            margin-bottom: 5px;
+            animation: glowPulse 2s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            from { filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6)); }
+            to { filter: drop-shadow(0 0 25px rgba(255, 0, 127, 0.9)); }
+        }
+
+        .recipient-name {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #ffbe0b;
+            margin-bottom: 18px;
+            text-shadow: 0 2px 15px rgba(255, 190, 11, 0.6);
+        }
+
+        .message-box {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(14px);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 22px;
+            padding: 22px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #f8fafc;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+        }
+
+        @media (max-width: 480px) {
+            .bday-title { font-size: 2.6rem; }
+            .recipient-name { font-size: 1.5rem; }
+            .message-box { font-size: 1rem; padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <!-- Bottom Progress & Hint -->
+    <div id="ui-overlay">
+        <div id="hint-text">C-Building-এর ওপর ট্যাপ করো! 🏢✨</div>
+        <div class="progress-bar">
+            <div id="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- Final Birthday Reveal -->
+    <div id="surprise-card">
+        <h1 class="bday-title">Happy Birthday!</h1>
+        <!-- নিচে যাকে উইশ করবি তার নাম লিখবি -->
+        <div class="recipient-name">✨ MAIMUNA ✨</div>
+        <!-- নিচে তোর মনের মতো মেসেজ লিখবি -->
+        <div class="message-box">
+            Hey Maimuna, Happy Birthday! 🎂🎉<br>
+            Sending you lots and lots of best wishes. Always stay cheerful and happy—your smile is so beautiful, Ma sha Allah.<br>
+             Keeping you in my prayers so that you always remain happy.<br>
+              And here is a very small gift from me; I hope you like it! 💙🚀
+        </div>
+    </div>
+
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // ================= 1. SOUND ENGINE (Web Audio API - No external files needed) =================
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioCtx();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        // Tap Pop Sound
+        function playTapSound(step) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            // Pitch goes higher with every tap!
+            osc.frequency.setValueAtTime(250 + step * 55, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(500 + step * 70, audioCtx.currentTime + 0.12);
+            
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.12);
+        }
+
+        // Explosion Boom Sound
+        function playBoomSound() {
+            initAudio();
+            const bufferSize = audioCtx.sampleRate * 0.8;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.8);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.8);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            noise.start();
+        }
+
+        // Happy Birthday Melody (Music Box Style)
+        function playHappyBirthdayMelody() {
+            initAudio();
+            // Notes in Hz
+            const notes = [
+                { f: 261.63, d: 0.3 }, { f: 261.63, d: 0.3 }, { f: 293.66, d: 0.6 }, { f: 261.63, d: 0.6 }, { f: 349.23, d: 0.6 }, { f: 329.63, d: 1.0 },
+                { f: 261.63, d: 0.3 }, { f: 261.63, d: 0.3 }, { f: 293.66, d: 0.6 }, { f: 261.63, d: 0.6 }, { f: 392.00, d: 0.6 }, { f: 349.23, d: 1.0 },
+                { f: 261.63, d: 0.3 }, { f: 261.63, d: 0.3 }, { f: 523.25, d: 0.6 }, { f: 440.00, d: 0.6 }, { f: 349.23, d: 0.6 }, { f: 329.63, d: 0.6 }, { f: 293.66, d: 1.0 },
+                { f: 466.16, d: 0.3 }, { f: 466.16, d: 0.3 }, { f: 440.00, d: 0.6 }, { f: 349.23, d: 0.6 }, { f: 392.00, d: 0.6 }, { f: 349.23, d: 1.2 }
+            ];
+
+            let time = audioCtx.currentTime + 0.3;
+            notes.forEach(n => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(n.f, time);
+
+                gain.gain.setValueAtTime(0.01, time);
+                gain.gain.linearRampToValueAtTime(0.25, time + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + n.d);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(time);
+                osc.stop(time + n.d);
+                time += n.d * 0.95;
+            });
+
+            // Loop the melody softly
+            setTimeout(() => {
+                playHappyBirthdayMelody();
+            }, (time - audioCtx.currentTime) * 1000 + 1500);
+        }
+
+        // ================= 2. THREE.JS 3D SCENE SETUP =================
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5.5;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+        scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight(0x00f0ff, 1.5, 20);
+        pointLight1.position.set(4, 4, 4);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0xff007f, 1.5, 20);
+        pointLight2.position.set(-4, -3, 4);
+        scene.add(pointLight2);
+
+        // Load C-Building Image Texture
+        // ছবির ফাইল নেম ভিন্ন হলে নিচের 'c-building.jpg' পরিবর্তন করে দিস
+        const textureLoader = new THREE.TextureLoader();
+        const buildingTexture = textureLoader.load('c-building.png');
+
+        // Create 3D Globe representing the iconic round C-Building
+        const globeGroup = new THREE.Group();
+        const sphereGeo = new THREE.SphereGeometry(1.35, 64, 64);
+        const sphereMat = new THREE.MeshStandardMaterial({
+            map: buildingTexture,
+            roughness: 0.25,
+            metalness: 0.2
+        });
+        const buildingGlobe = new THREE.Mesh(sphereGeo, sphereMat);
+        globeGroup.add(buildingGlobe);
+
+        // Add a glowing 3D orbital ring around the building
+        const ringGeo = new THREE.TorusGeometry(1.75, 0.025, 16, 100);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.6 });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.PI / 2.5;
+        ring.rotation.y = Math.PI / 8;
+        globeGroup.add(ring);
+
+        scene.add(globeGroup);
+
+        // Background 3D Stars
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 400;
+        const starPos = new Float32Array(starCount * 3);
+        for (let i = 0; i < starCount * 3; i++) {
+            starPos[i] = (Math.random() - 0.5) * 25;
+        }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.06, transparent: true, opacity: 0.7 });
+        const stars = new THREE.Points(starGeo, starMat);
+        scene.add(stars);
+
+        // ================= 3. INTERACTION & EXPLOSION LOGIC =================
+        let taps = 0;
+        const maxTaps = 10;
+        let targetScale = 1;
+        let currentScale = 1;
+        let isExploded = false;
+        let shakeIntensity = 0;
+        let shards = [];
+
+        const hintText = document.getElementById('hint-text');
+        const progressFill = document.getElementById('progress-fill');
+        const uiOverlay = document.getElementById('ui-overlay');
+        const surpriseCard = document.getElementById('surprise-card');
+
+        const hints = [
+            "C-Building-এর ওপর ট্যাপ করো! 🏢✨",
+            "বাহ! বিল্ডিংটা বড় হচ্ছে... 👀",
+            "আরেকটু জোরে ট্যাপ দাও! 🔥",
+            "ভেতরে সারপ্রাইজ লোড হচ্ছে... 🎁",
+            "প্রায় অর্ধেক হয়ে গেছে! 🚀",
+            "গ্লোবটা কাঁপছে! চালিয়ে যাও ⚡",
+            "আর মাত্র কয়েকবার! 💥",
+            "৩...",
+            "২...",
+            "১... ফাটবে এখনই! 🎆"
+        ];
+
+        const colors = [0x00f0ff, 0xff007f, 0xffbe0b, 0x00ff66, 0x8338ec, 0xff5400];
+
+        function spawn3DParticles(count, speedMultiplier = 1) {
+            const geo = new THREE.OctahedronGeometry(0.08, 0);
+            for (let i = 0; i < count; i++) {
+                const mat = new THREE.MeshBasicMaterial({
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.copy(globeGroup.position);
+
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const speed = (Math.random() * 0.08 + 0.04) * speedMultiplier;
+
+                mesh.userData = {
+                    vx: Math.sin(phi) * Math.cos(theta) * speed,
+                    vy: Math.sin(phi) * Math.sin(theta) * speed,
+                    vz: Math.cos(phi) * speed,
+                    rx: Math.random() * 0.15,
+                    ry: Math.random() * 0.15,
+                    life: 1.0
+                };
+                scene.add(mesh);
+                shards.push(mesh);
+            }
+        }
+
+        function triggerExplosion() {
+            isExploded = true;
+            playBoomSound();
+            
+            // Hide main globe & UI
+            scene.remove(globeGroup);
+            uiOverlay.style.opacity = '0';
+
+            // Spawn massive 3D confetti & building fragments
+            spawn3DParticles(220, 2.4);
+
+            // Show Happy Birthday Card emerging from center
+            setTimeout(() => {
+                surpriseCard.classList.add('show');
+                playHappyBirthdayMelody();
+            }, 300);
+
+            // Continuous celebration confetti
+            setInterval(() => {
+                spawn3DParticles(25, 1.5);
+            }, 700);
+        }
+
+        container.addEventListener('pointerdown', () => {
+            if (isExploded) return;
+
+            taps++;
+            playTapSound(taps);
+
+            if (taps < maxTaps) {
+                targetScale += 0.11;
+                shakeIntensity = 0.08 + (taps * 0.015);
+                hintText.textContent = hints[taps] || "আরেকটু!";
+                progressFill.style.width = `${(taps / maxTaps) * 100}%`;
+                spawn3DParticles(20, 1);
+            } else {
+                progressFill.style.width = '100%';
+                triggerExplosion();
+            }
+        });
+
+        // ================= 4. ANIMATION LOOP =================
+        function animate() {
+            requestAnimationFrame(animate);
+
+            stars.rotation.y += 0.0008;
+
+            if (!isExploded) {
+                // Smoothly grow building
+                currentScale += (targetScale - currentScale) * 0.15;
+                globeGroup.scale.set(currentScale, currentScale, currentScale);
+
+                // Rotate 3D building & ring
+                buildingGlobe.rotation.y += 0.012 + (taps * 0.004);
+                ring.rotation.z += 0.02;
+
+                // Shake effect on tap
+                if (shakeIntensity > 0) {
+                    globeGroup.position.x = (Math.random() - 0.5) * shakeIntensity;
+                    globeGroup.position.y = (Math.random() - 0.5) * shakeIntensity;
+                    shakeIntensity *= 0.88;
+                } else {
+                    globeGroup.position.set(0, 0, 0);
+                }
+            }
+
+            // Animate 3D Confetti & Shards
+            for (let i = shards.length - 1; i >= 0; i--) {
+                const s = shards[i];
+                s.position.x += s.userData.vx;
+                s.position.y += s.userData.vy;
+                s.position.z += s.userData.vz;
+                s.userData.vy -= 0.0012; // subtle gravity
+                s.rotation.x += s.userData.rx;
+                s.rotation.y += s.userData.ry;
+                s.userData.life -= 0.008;
+
+                if (s.userData.life <= 0) {
+                    scene.remove(s);
+                    shards.splice(i, 1);
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Responsive Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
