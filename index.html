@@ -22,17 +22,116 @@
             background: radial-gradient(circle at center, #0d1b3e 0%, #050814 100%);
             font-family: 'Hind Siliguri', sans-serif;
             color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             position: relative;
         }
 
-        #canvas-container {
+        #bg-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 3D Swaying C-Building + Orbiting Rings Container */
+        #building-stage {
+            position: relative;
+            z-index: 10;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            transform-style: preserve-3d;
             cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+        }
+
+        #c-building-img {
+            width: 220px;
+            height: 220px;
+            object-fit: contain;
+            position: relative;
+            z-index: 5;
+            filter: drop-shadow(0 0 28px rgba(0, 240, 255, 0.65));
+            animation: floatSway3D 3.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes floatSway3D {
+            0%, 100% { transform: translateY(0px) rotateY(-14deg) rotateZ(-2deg); }
+            50% { transform: translateY(-16px) rotateY(14deg) rotateZ(2deg); }
+        }
+
+        .orbit-tilt-cyan {
+            position: absolute;
+            width: 315px;
+            height: 315px;
+            transform: rotateX(72deg) rotateY(-24deg);
+            transform-style: preserve-3d;
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        .orbit-tilt-pink {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            transform: rotateX(68deg) rotateY(28deg);
+            transform-style: preserve-3d;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .ring-cyan {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border-top: 7px solid #00f0ff;
+            border-right: 4px solid rgba(0, 240, 255, 0.7);
+            border-bottom: 1.5px solid rgba(0, 240, 255, 0.15);
+            border-left: 3px solid rgba(0, 240, 255, 0.45);
+            box-shadow: 0 -6px 22px rgba(0, 240, 255, 0.85);
+            animation: spinOrbitClockwise 2.6s linear infinite;
+        }
+
+        .ring-pink {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border-bottom: 7px solid #ff007f;
+            border-left: 4px solid rgba(255, 0, 127, 0.7);
+            border-top: 1.5px solid rgba(255, 0, 127, 0.15);
+            border-right: 3px solid rgba(255, 0, 127, 0.45);
+            box-shadow: 0 6px 22px rgba(255, 0, 127, 0.85);
+            animation: spinOrbitCounter 3.4s linear infinite;
+        }
+
+        @keyframes spinOrbitClockwise {
+            0% { transform: rotateZ(0deg); }
+            100% { transform: rotateZ(360deg); }
+        }
+
+        @keyframes spinOrbitCounter {
+            0% { transform: rotateZ(360deg); }
+            100% { transform: rotateZ(0deg); }
+        }
+
+        .shake {
+            animation: tapShake 0.25s ease-in-out;
+        }
+
+        @keyframes tapShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px) rotate(-3deg); }
+            75% { transform: translateX(8px) rotate(3deg); }
         }
 
         /* UI Overlay before explosion */
@@ -78,16 +177,66 @@
             transition: width 0.25s ease;
         }
 
+        /* Floating Polaroid Photos Layer */
+        #floating-photos {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 15;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+
+        #floating-photos.show {
+            opacity: 1;
+        }
+
+        .photo-frame {
+            position: absolute;
+            width: 125px;
+            height: 145px;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 7px 7px 22px 7px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 18px rgba(0, 240, 255, 0.45);
+            overflow: hidden;
+        }
+
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .p1 { top: 6%; left: 6%; animation: floatCard1 4.2s ease-in-out infinite; }
+        .p2 { top: 6%; right: 6%; animation: floatCard2 4.8s ease-in-out infinite; }
+        .p3 { bottom: 6%; left: 6%; animation: floatCard2 4.5s ease-in-out infinite; }
+        .p4 { bottom: 6%; right: 6%; animation: floatCard1 5s ease-in-out infinite; }
+
+        @keyframes floatCard1 {
+            0%, 100% { transform: translateY(0px) rotate(-8deg); }
+            50% { transform: translateY(-14px) rotate(-3deg); }
+        }
+
+        @keyframes floatCard2 {
+            0%, 100% { transform: translateY(0px) rotate(8deg); }
+            50% { transform: translateY(-14px) rotate(3deg); }
+        }
+
         /* Final Birthday Card Reveal */
         #surprise-card {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.2);
-            z-index: 20;
+            z-index: 25;
             text-align: center;
-            width: 90%;
-            max-width: 460px;
+            width: 88%;
+            max-width: 440px;
             opacity: 0;
             pointer-events: none;
             transition: all 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -101,12 +250,12 @@
 
         .bday-title {
             font-family: 'Pacifico', cursive;
-            font-size: 3.4rem;
+            font-size: 3.2rem;
             background: linear-gradient(45deg, #00f0ff, #ffbe0b, #ff007f);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 5px 20px rgba(255, 0, 127, 0.6));
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             animation: glowPulse 2s infinite alternate;
         }
 
@@ -116,35 +265,72 @@
         }
 
         .recipient-name {
-            font-size: 1.9rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: #ffbe0b;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
             text-shadow: 0 2px 15px rgba(255, 190, 11, 0.6);
         }
 
         .message-box {
-            background: rgba(15, 23, 42, 0.75);
+            background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(14px);
-            border: 1.5px solid rgba(255, 255, 255, 0.2);
+            border: 1.5px solid rgba(255, 255, 255, 0.22);
             border-radius: 22px;
-            padding: 22px;
-            font-size: 1.1rem;
-            line-height: 1.7;
+            padding: 20px;
+            font-size: 1.05rem;
+            line-height: 1.65;
             color: #f8fafc;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+        }
+
+        .sender-sign {
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
         }
 
         @media (max-width: 480px) {
-            .bday-title { font-size: 2.6rem; }
-            .recipient-name { font-size: 1.5rem; }
-            .message-box { font-size: 1rem; padding: 18px; }
+            #building-stage { width: 250px; height: 250px; }
+            #c-building-img { width: 185px; height: 185px; }
+            .orbit-tilt-cyan { width: 260px; height: 260px; }
+            .orbit-tilt-pink { width: 290px; height: 290px; }
+            
+            .photo-frame {
+                width: 82px;
+                height: 98px;
+                padding: 4px 4px 14px 4px;
+            }
+            .p1 { top: 3%; left: 4%; }
+            .p2 { top: 3%; right: 4%; }
+            .p3 { bottom: 3%; left: 4%; }
+            .p4 { bottom: 3%; right: 4%; }
+
+            .bday-title { font-size: 2.3rem; }
+            .recipient-name { font-size: 1.35rem; margin-bottom: 10px; }
+            .message-box { font-size: 0.92rem; padding: 15px; line-height: 1.55; }
+            .sender-sign { font-size: 0.8rem; margin-top: 10px; padding-top: 8px; }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="canvas-container"></canvas>
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- C-Building Image + Visibly Spinning 3D Orbital Rings -->
+    <div id="building-stage">
+        <div class="orbit-tilt-pink">
+            <div class="ring-pink"></div>
+        </div>
+        <img id="c-building-img" src="c-building.png" alt="C-Building">
+        <div class="orbit-tilt-cyan">
+            <div class="ring-cyan"></div>
+        </div>
+    </div>
 
     <!-- Bottom Progress & Hint -->
     <div id="ui-overlay">
@@ -154,20 +340,26 @@
         </div>
     </div>
 
+    <!-- Floating Memories / Photos (Appears after explosion) -->
+    <div id="floating-photos">
+        <div class="photo-frame p1"><img src="pic1.jpg" alt="Memory 1"></div>
+        <div class="photo-frame p2"><img src="pic2.jpg" alt="Memory 2"></div>
+        <div class="photo-frame p3"><img src="pic3.jpg" alt="Memory 3"></div>
+        <div class="photo-frame p4"><img src="pic4.jpg" alt="Memory 4"></div>
+    </div>
+
     <!-- Final Birthday Reveal -->
     <div id="surprise-card">
         <h1 class="bday-title">Happy Birthday!</h1>
         <div class="recipient-name">✨ MAIMUNA ✨</div>
         <div class="message-box">
             Hey Maimuna, Happy Birthday! 🎂🎉<br>
-            Sending you lots and lots of best wishes. Always stay cheerful and happy—your smile is so beautiful, Ma sha Allah.<br>
-            Keeping you in my prayers so that you always remain happy.<br>
+            Sending you lots and lots of best wishes. Always stay cheerful and happy—your smile is so beautiful, Ma sha Allah.
+            Keeping you in my prayers so that you always remain happy.
             And here is a very small gift from me; I hope you like it! 💙🚀
+            <div class="sender-sign">— Warm wishes, Siam ✨</div>
         </div>
     </div>
-
-    <!-- Three.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
         // ================= 1. SOUND ENGINE =================
@@ -254,98 +446,92 @@
             }, (time - audioCtx.currentTime) * 1000 + 1500);
         }
 
-        // ================= 2. THREE.JS 3D SCENE SETUP =================
-        const canvasEl = document.getElementById('canvas-container');
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5.5;
+        // ================= 2. STARS & CONFETTI CANVAS =================
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
-        scene.add(ambientLight);
-
-        const pointLight1 = new THREE.PointLight(0x00f0ff, 1.5, 20);
-        pointLight1.position.set(4, 4, 4);
-        scene.add(pointLight1);
-
-        const pointLight2 = new THREE.PointLight(0xff007f, 1.5, 20);
-        pointLight2.position.set(-4, -3, 4);
-        scene.add(pointLight2);
-
-        const textureLoader = new THREE.TextureLoader();
-        const buildingTexture = textureLoader.load('c-building.png');
-
-        // 3D Medallion/Orb Group (Seamless display for transparent PNG cutout)
-        const globeGroup = new THREE.Group();
-
-        // Inner glowing glass core
-        const coreGeo = new THREE.SphereGeometry(1.32, 32, 32);
-        const coreMat = new THREE.MeshStandardMaterial({
-            color: 0x0a2540,
-            roughness: 0.2,
-            metalness: 0.8,
-            transparent: true,
-            opacity: 0.6
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         });
-        const coreSphere = new THREE.Mesh(coreGeo, coreMat);
-        globeGroup.add(coreSphere);
 
-        // Front & Back 3D Textured Plane displaying the C-Building cleanly
-        const planeGeo = new THREE.PlaneGeometry(2.7, 2.7);
-        const planeMat = new THREE.MeshBasicMaterial({
-            map: buildingTexture,
-            transparent: true,
-            side: THREE.DoubleSide,
-            alphaTest: 0.05
-        });
-        const buildingMesh = new THREE.Mesh(planeGeo, planeMat);
-        globeGroup.add(buildingMesh);
+        const stars = Array.from({ length: 120 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.6 + 0.4,
+            alpha: Math.random(),
+            speed: Math.random() * 0.02 + 0.005
+        }));
 
-        // Dual Glowing 3D Orbital Rings around C-Building
-        const ringGeo1 = new THREE.TorusGeometry(1.65, 0.025, 16, 100);
-        const ringMat1 = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.75 });
-        const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
-        ring1.rotation.x = Math.PI / 2.6;
-        ring1.rotation.y = Math.PI / 8;
-        globeGroup.add(ring1);
+        let particles = [];
+        const colors = ['#00f0ff', '#ff007f', '#ffbe0b', '#00ff66', '#8338ec', '#ff5400'];
 
-        const ringGeo2 = new THREE.TorusGeometry(1.85, 0.018, 16, 100);
-        const ringMat2 = new THREE.MeshBasicMaterial({ color: 0xff007f, transparent: true, opacity: 0.55 });
-        const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
-        ring2.rotation.x = -Math.PI / 3;
-        ring2.rotation.y = -Math.PI / 6;
-        globeGroup.add(ring2);
-
-        scene.add(globeGroup);
-
-        // Background 3D Stars
-        const starGeo = new THREE.BufferGeometry();
-        const starCount = 400;
-        const starPos = new Float32Array(starCount * 3);
-        for (let i = 0; i < starCount * 3; i++) {
-            starPos[i] = (Math.random() - 0.5) * 25;
+        function createBurst(x, y, count, speedMult = 1) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 14 * speedMult,
+                    vy: (Math.random() - 0.5) * 14 * speedMult - 2,
+                    size: Math.random() * 6 + 3,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1,
+                    gravity: 0.14
+                });
+            }
         }
-        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.06, transparent: true, opacity: 0.7 });
-        const stars = new THREE.Points(starGeo, starMat);
-        scene.add(stars);
 
-        // ================= 3. INTERACTION & EXPLOSION LOGIC =================
-        let taps = 0;
-        const maxTaps = 10;
-        let targetScale = 1;
-        let currentScale = 1;
-        let isExploded = false;
-        let shakeIntensity = 0;
-        let shards = [];
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            stars.forEach(s => {
+                s.alpha += s.speed;
+                if (s.alpha > 1 || s.alpha < 0.2) s.speed = -s.speed;
+                ctx.globalAlpha = s.alpha;
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.gravity;
+                p.alpha -= 0.008;
+
+                if (p.alpha <= 0 || p.y > canvas.height + 20) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        // ================= 3. INTERACTION & EXPLOSION =================
+        const buildingStage = document.getElementById('building-stage');
         const hintText = document.getElementById('hint-text');
         const progressFill = document.getElementById('progress-fill');
         const uiOverlay = document.getElementById('ui-overlay');
         const surpriseCard = document.getElementById('surprise-card');
+        const floatingPhotos = document.getElementById('floating-photos');
+
+        let taps = 0;
+        const maxTaps = 10;
+        let currentScale = 1;
+        let isExploded = false;
 
         const hints = [
             "C-Building-এর ওপর ট্যাপ করো! 🏢✨",
@@ -353,133 +539,52 @@
             "আরেকটু জোরে ট্যাপ দাও! 🔥",
             "ভেতরে সারপ্রাইজ লোড হচ্ছে... 🎁",
             "প্রায় অর্ধেক হয়ে গেছে! 🚀",
-            "গ্লোবটা কাঁপছে! চালিয়ে যাও ⚡",
+            "বিল্ডিংটা কাঁপছে! চালিয়ে যাও ⚡",
             "আর মাত্র কয়েকবার! 💥",
             "৩...",
             "২...",
             "১... ফাটবে এখনই! 🎆"
         ];
 
-        const colors = [0x00f0ff, 0xff007f, 0xffbe0b, 0x00ff66, 0x8338ec, 0xff5400];
-
-        function spawn3DParticles(count, speedMultiplier = 1) {
-            const geo = new THREE.OctahedronGeometry(0.08, 0);
-            for (let i = 0; i < count; i++) {
-                const mat = new THREE.MeshBasicMaterial({
-                    color: colors[Math.floor(Math.random() * colors.length)]
-                });
-                const mesh = new THREE.Mesh(geo, mat);
-                mesh.position.copy(globeGroup.position);
-
-                const theta = Math.random() * Math.PI * 2;
-                const phi = Math.acos((Math.random() * 2) - 1);
-                const speed = (Math.random() * 0.08 + 0.04) * speedMultiplier;
-
-                mesh.userData = {
-                    vx: Math.sin(phi) * Math.cos(theta) * speed,
-                    vy: Math.sin(phi) * Math.sin(theta) * speed,
-                    vz: Math.cos(phi) * speed,
-                    rx: Math.random() * 0.15,
-                    ry: Math.random() * 0.15,
-                    life: 1.0
-                };
-                scene.add(mesh);
-                shards.push(mesh);
-            }
-        }
-
-        function triggerExplosion() {
-            isExploded = true;
-            playBoomSound();
-            
-            scene.remove(globeGroup);
-            uiOverlay.style.opacity = '0';
-
-            spawn3DParticles(220, 2.4);
-
-            setTimeout(() => {
-                surpriseCard.classList.add('show');
-                playHappyBirthdayMelody();
-            }, 300);
-
-            setInterval(() => {
-                spawn3DParticles(25, 1.5);
-            }, 700);
-        }
-
-        canvasEl.addEventListener('pointerdown', () => {
+        buildingStage.addEventListener('pointerdown', (e) => {
             if (isExploded) return;
 
             taps++;
             playTapSound(taps);
 
             if (taps < maxTaps) {
-                targetScale += 0.11;
-                shakeIntensity = 0.08 + (taps * 0.015);
+                currentScale += 0.11;
+                buildingStage.style.transform = `scale(${currentScale})`;
+                
+                buildingStage.classList.remove('shake');
+                void buildingStage.offsetWidth;
+                buildingStage.classList.add('shake');
+
                 hintText.textContent = hints[taps] || "আরেকটু!";
                 progressFill.style.width = `${(taps / maxTaps) * 100}%`;
-                spawn3DParticles(20, 1);
+                createBurst(e.clientX || canvas.width / 2, e.clientY || canvas.height / 2, 18, 0.9);
             } else {
+                isExploded = true;
                 progressFill.style.width = '100%';
-                triggerExplosion();
+                playBoomSound();
+
+                buildingStage.style.transform = `scale(${currentScale * 1.4})`;
+                buildingStage.style.opacity = '0';
+                uiOverlay.style.opacity = '0';
+
+                createBurst(canvas.width / 2, canvas.height / 2, 160, 1.8);
+
+                setTimeout(() => {
+                    buildingStage.style.display = 'none';
+                    surpriseCard.classList.add('show');
+                    floatingPhotos.classList.add('show');
+                    playHappyBirthdayMelody();
+                }, 350);
+
+                setInterval(() => {
+                    createBurst(Math.random() * canvas.width, Math.random() * (canvas.height * 0.4), 20, 0.8);
+                }, 650);
             }
-        });
-
-        // ================= 4. ANIMATION LOOP =================
-        let clock = new THREE.Clock();
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const elapsed = clock.getElapsedTime();
-
-            stars.rotation.y += 0.0008;
-
-            if (!isExploded) {
-                currentScale += (targetScale - currentScale) * 0.15;
-                globeGroup.scale.set(currentScale, currentScale, currentScale);
-
-                // Smooth 3D floating & swaying motion
-                buildingMesh.rotation.y = Math.sin(elapsed * 1.5) * 0.35;
-                buildingMesh.position.y = Math.sin(elapsed * 2.2) * 0.08;
-                coreSphere.position.y = buildingMesh.position.y;
-
-                // Dual 3D rings rotating around the building
-                ring1.rotation.z += 0.02 + (taps * 0.004);
-                ring2.rotation.z -= 0.015 + (taps * 0.003);
-
-                if (shakeIntensity > 0) {
-                    globeGroup.position.x = (Math.random() - 0.5) * shakeIntensity;
-                    globeGroup.position.y = (Math.random() - 0.5) * shakeIntensity;
-                    shakeIntensity *= 0.88;
-                } else {
-                    globeGroup.position.set(0, 0, 0);
-                }
-            }
-
-            for (let i = shards.length - 1; i >= 0; i--) {
-                const s = shards[i];
-                s.position.x += s.userData.vx;
-                s.position.y += s.userData.vy;
-                s.position.z += s.userData.vz;
-                s.userData.vy -= 0.0012;
-                s.rotation.x += s.userData.rx;
-                s.rotation.y += s.userData.ry;
-                s.userData.life -= 0.008;
-
-                if (s.userData.life <= 0) {
-                    scene.remove(s);
-                    shards.splice(i, 1);
-                }
-            }
-
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
 </body>
