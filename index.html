@@ -144,7 +144,7 @@
 </head>
 <body>
 
-    <div id="canvas-container"></div>
+    <canvas id="canvas-container"></canvas>
 
     <!-- Bottom Progress & Hint -->
     <div id="ui-overlay">
@@ -157,14 +157,12 @@
     <!-- Final Birthday Reveal -->
     <div id="surprise-card">
         <h1 class="bday-title">Happy Birthday!</h1>
-        <!-- নিচে যাকে উইশ করবি তার নাম লিখবি -->
         <div class="recipient-name">✨ MAIMUNA ✨</div>
-        <!-- নিচে তোর মনের মতো মেসেজ লিখবি -->
         <div class="message-box">
             Hey Maimuna, Happy Birthday! 🎂🎉<br>
             Sending you lots and lots of best wishes. Always stay cheerful and happy—your smile is so beautiful, Ma sha Allah.<br>
-             Keeping you in my prayers so that you always remain happy.<br>
-              And here is a very small gift from me; I hope you like it! 💙🚀
+            Keeping you in my prayers so that you always remain happy.<br>
+            And here is a very small gift from me; I hope you like it! 💙🚀
         </div>
     </div>
 
@@ -172,7 +170,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // ================= 1. SOUND ENGINE (Web Audio API - No external files needed) =================
+        // ================= 1. SOUND ENGINE =================
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
 
@@ -181,13 +179,11 @@
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        // Tap Pop Sound
         function playTapSound(step) {
             initAudio();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sine';
-            // Pitch goes higher with every tap!
             osc.frequency.setValueAtTime(250 + step * 55, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(500 + step * 70, audioCtx.currentTime + 0.12);
             
@@ -200,7 +196,6 @@
             osc.stop(audioCtx.currentTime + 0.12);
         }
 
-        // Explosion Boom Sound
         function playBoomSound() {
             initAudio();
             const bufferSize = audioCtx.sampleRate * 0.8;
@@ -227,10 +222,8 @@
             noise.start();
         }
 
-        // Happy Birthday Melody (Music Box Style)
         function playHappyBirthdayMelody() {
             initAudio();
-            // Notes in Hz
             const notes = [
                 { f: 261.63, d: 0.3 }, { f: 261.63, d: 0.3 }, { f: 293.66, d: 0.6 }, { f: 261.63, d: 0.6 }, { f: 349.23, d: 0.6 }, { f: 329.63, d: 1.0 },
                 { f: 261.63, d: 0.3 }, { f: 261.63, d: 0.3 }, { f: 293.66, d: 0.6 }, { f: 261.63, d: 0.6 }, { f: 392.00, d: 0.6 }, { f: 349.23, d: 1.0 },
@@ -256,25 +249,22 @@
                 time += n.d * 0.95;
             });
 
-            // Loop the melody softly
             setTimeout(() => {
                 playHappyBirthdayMelody();
             }, (time - audioCtx.currentTime) * 1000 + 1500);
         }
 
         // ================= 2. THREE.JS 3D SCENE SETUP =================
-        const container = document.getElementById('canvas-container');
+        const canvasEl = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.z = 5.5;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        container.appendChild(renderer.domElement);
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
         scene.add(ambientLight);
 
         const pointLight1 = new THREE.PointLight(0x00f0ff, 1.5, 20);
@@ -285,29 +275,49 @@
         pointLight2.position.set(-4, -3, 4);
         scene.add(pointLight2);
 
-        // Load C-Building Image Texture
-        // ছবির ফাইল নেম ভিন্ন হলে নিচের 'c-building.jpg' পরিবর্তন করে দিস
         const textureLoader = new THREE.TextureLoader();
         const buildingTexture = textureLoader.load('c-building.png');
 
-        // Create 3D Globe representing the iconic round C-Building
+        // 3D Medallion/Orb Group (Seamless display for transparent PNG cutout)
         const globeGroup = new THREE.Group();
-        const sphereGeo = new THREE.SphereGeometry(1.35, 64, 64);
-        const sphereMat = new THREE.MeshStandardMaterial({
-            map: buildingTexture,
-            roughness: 0.25,
-            metalness: 0.2
-        });
-        const buildingGlobe = new THREE.Mesh(sphereGeo, sphereMat);
-        globeGroup.add(buildingGlobe);
 
-        // Add a glowing 3D orbital ring around the building
-        const ringGeo = new THREE.TorusGeometry(1.75, 0.025, 16, 100);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.6 });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = Math.PI / 2.5;
-        ring.rotation.y = Math.PI / 8;
-        globeGroup.add(ring);
+        // Inner glowing glass core
+        const coreGeo = new THREE.SphereGeometry(1.32, 32, 32);
+        const coreMat = new THREE.MeshStandardMaterial({
+            color: 0x0a2540,
+            roughness: 0.2,
+            metalness: 0.8,
+            transparent: true,
+            opacity: 0.6
+        });
+        const coreSphere = new THREE.Mesh(coreGeo, coreMat);
+        globeGroup.add(coreSphere);
+
+        // Front & Back 3D Textured Plane displaying the C-Building cleanly
+        const planeGeo = new THREE.PlaneGeometry(2.7, 2.7);
+        const planeMat = new THREE.MeshBasicMaterial({
+            map: buildingTexture,
+            transparent: true,
+            side: THREE.DoubleSide,
+            alphaTest: 0.05
+        });
+        const buildingMesh = new THREE.Mesh(planeGeo, planeMat);
+        globeGroup.add(buildingMesh);
+
+        // Dual Glowing 3D Orbital Rings around C-Building
+        const ringGeo1 = new THREE.TorusGeometry(1.65, 0.025, 16, 100);
+        const ringMat1 = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.75 });
+        const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
+        ring1.rotation.x = Math.PI / 2.6;
+        ring1.rotation.y = Math.PI / 8;
+        globeGroup.add(ring1);
+
+        const ringGeo2 = new THREE.TorusGeometry(1.85, 0.018, 16, 100);
+        const ringMat2 = new THREE.MeshBasicMaterial({ color: 0xff007f, transparent: true, opacity: 0.55 });
+        const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
+        ring2.rotation.x = -Math.PI / 3;
+        ring2.rotation.y = -Math.PI / 6;
+        globeGroup.add(ring2);
 
         scene.add(globeGroup);
 
@@ -339,12 +349,12 @@
 
         const hints = [
             "C-Building-এর ওপর ট্যাপ করো! 🏢✨",
-            "বাহ! বিল্ডিংটা বড় হচ্ছে... 👀",
+            "বাহ! বিল্ডিংটা বড় হচ্ছে... 👀",
             "আরেকটু জোরে ট্যাপ দাও! 🔥",
             "ভেতরে সারপ্রাইজ লোড হচ্ছে... 🎁",
-            "প্রায় অর্ধেক হয়ে গেছে! 🚀",
-            "গ্লোবটা কাঁপছে! চালিয়ে যাও ⚡",
-            "আর মাত্র কয়েকবার! 💥",
+            "প্রায় অর্ধেক হয়ে গেছে! 🚀",
+            "গ্লোবটা কাঁপছে! চালিয়ে যাও ⚡",
+            "আর মাত্র কয়েকবার! 💥",
             "৩...",
             "২...",
             "১... ফাটবে এখনই! 🎆"
@@ -382,26 +392,22 @@
             isExploded = true;
             playBoomSound();
             
-            // Hide main globe & UI
             scene.remove(globeGroup);
             uiOverlay.style.opacity = '0';
 
-            // Spawn massive 3D confetti & building fragments
             spawn3DParticles(220, 2.4);
 
-            // Show Happy Birthday Card emerging from center
             setTimeout(() => {
                 surpriseCard.classList.add('show');
                 playHappyBirthdayMelody();
             }, 300);
 
-            // Continuous celebration confetti
             setInterval(() => {
                 spawn3DParticles(25, 1.5);
             }, 700);
         }
 
-        container.addEventListener('pointerdown', () => {
+        canvasEl.addEventListener('pointerdown', () => {
             if (isExploded) return;
 
             taps++;
@@ -420,21 +426,27 @@
         });
 
         // ================= 4. ANIMATION LOOP =================
+        let clock = new THREE.Clock();
+
         function animate() {
             requestAnimationFrame(animate);
+            const elapsed = clock.getElapsedTime();
 
             stars.rotation.y += 0.0008;
 
             if (!isExploded) {
-                // Smoothly grow building
                 currentScale += (targetScale - currentScale) * 0.15;
                 globeGroup.scale.set(currentScale, currentScale, currentScale);
 
-                // Rotate 3D building & ring
-                buildingGlobe.rotation.y += 0.012 + (taps * 0.004);
-                ring.rotation.z += 0.02;
+                // Smooth 3D floating & swaying motion
+                buildingMesh.rotation.y = Math.sin(elapsed * 1.5) * 0.35;
+                buildingMesh.position.y = Math.sin(elapsed * 2.2) * 0.08;
+                coreSphere.position.y = buildingMesh.position.y;
 
-                // Shake effect on tap
+                // Dual 3D rings rotating around the building
+                ring1.rotation.z += 0.02 + (taps * 0.004);
+                ring2.rotation.z -= 0.015 + (taps * 0.003);
+
                 if (shakeIntensity > 0) {
                     globeGroup.position.x = (Math.random() - 0.5) * shakeIntensity;
                     globeGroup.position.y = (Math.random() - 0.5) * shakeIntensity;
@@ -444,13 +456,12 @@
                 }
             }
 
-            // Animate 3D Confetti & Shards
             for (let i = shards.length - 1; i >= 0; i--) {
                 const s = shards[i];
                 s.position.x += s.userData.vx;
                 s.position.y += s.userData.vy;
                 s.position.z += s.userData.vz;
-                s.userData.vy -= 0.0012; // subtle gravity
+                s.userData.vy -= 0.0012;
                 s.rotation.x += s.userData.rx;
                 s.rotation.y += s.userData.ry;
                 s.userData.life -= 0.008;
@@ -465,7 +476,6 @@
         }
         animate();
 
-        // Responsive Resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
